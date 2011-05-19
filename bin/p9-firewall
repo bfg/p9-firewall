@@ -72,7 +72,7 @@ NFLOG_GROUP_V4="0"
 NFLOG_GROUP_V6="1"
 
 # state directory
-STATE_DIR="/tmp"
+STATE_DIR="/var/lib/p9-firewall"
 
 #################################################
 #                  FUNCTIONS                    #
