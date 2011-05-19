@@ -78,7 +78,7 @@ STATE_DIR="/var/lib/p9-firewall"
 #                  FUNCTIONS                    #
 #################################################
 MYNAME=$(basename $0)
-VERSION="0.40"
+VERSION="0.42"
 PATH="/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin"
 export PATH
 
