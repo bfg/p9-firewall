@@ -1,0 +1,68 @@
+#
+# WHAT: Iptables chain fragment ;)
+#
+
+#########################################
+#        AVAILABLE FUNCTIONS            #
+#########################################
+#
+#      ***************************
+#      *** IPv4 rule functions ***
+#      ***************************
+#
+# add_rule <rule_description>
+#       :: adds specified rule in current chain context
+#
+# add_rule_full "table" "chain" <rule_descripton>
+#       :: adds specified rule in specified chain
+#
+# add_rule_log <rule_description>
+#       :: add rule to current chain context just
+#          as add_rule(), but adds another -j ULOG
+#          before it. Log rule is prefixed with
+#          <CHAIN_NAME>_<ACTION> string.
+#
+#       EXAMPLE:
+#               add_rule_log -j DROP
+#                       in chain EXAMPLE expands to the following 2 rules:
+#                       add_rule -j ULOG --ulog-prefix=EXAMPLE_DROP
+#                       add_rule -j DROP
+#
+# add_rule_log_prefix "prefix" <rule_description>
+#       :: the same as add_rule_log(), but you can
+#          set your own custom log string prefix.
+#
+#       NOTE: prefix MUST contain only [a-z0-9\-+\._] characters!
+#
+#      ***************************
+#      *** IPv6 rule functions ***
+#      ***************************
+#
+# Functions listed below work just the same as the add_rule* functions,
+# but they use ip6tables(8)
+#
+# add_rule6 <rule_description>
+# add_rule6_full "table" "chain" <rule_description>
+# add_rule6_log <rule_description>
+# add_rule6_log_prefix <rule_description>
+
+#########################################
+#        AVAILABLE VARIABLES            #
+#########################################
+
+# $IPTABLES, $fw :: iptables binary
+# $IP6TABLES, $fw6 :: ip6tables binary
+# $FW_BASEDIR :: Script base directory
+# $FW_CHAINDIR :: Chain directory
+# $CHAIN :: Current chain name
+# $CURRENT_CHAIN :: See $CHAIN
+#
+# and all variables defined in DEFINES.conf
+
+# accept only packets destined from eth1 to eth2
+# add_rule -i eth1 -o eth2 -j ACCEPT
+
+# lock down the chain
+# add_rule_log -j DROP
+
+# EOF

@@ -1,0 +1,63 @@
+#
+# iproute2 firewall rules
+#
+
+#
+# Available variables
+#
+# $ip		:: path to ip(8) binary
+# $IPROUTE2	:: path th ip(8) binary
+
+############################################
+#            *** WARNING ***               #
+#                                          #
+# YOU BETTER BE SHURE WHAT YOU'RE DOING    #
+# WHILE EDITING THIS FILE!                 #
+#                                          #
+# INCORRECT SETTINGS CAN LEAD TO           #
+# COMPLETELY NETWORK-DISABLED SYSTEM!!!    #
+############################################
+
+#
+# NOTE:
+#
+# Any special routing policy/table
+# ***MUST*** be listed in 
+#
+# /etc/iproute2/rt_tables
+#
+# EXAMPLE:
+# 201     openvpn.out
+#
+
+############################################
+#   ALTERNATIVE ROUTING TABLE SELECTIONS   #
+############################################
+
+############################################
+#	*** OpenVPN ***
+#
+# select different iproute2 routing table for
+# openvpn outgoing traffic
+#
+# Use "openvpn.out" routing table for packets
+# marked with FWMARK value of 6.
+#
+# $ip rule add fwmark 6 table openvpn.out
+############################################
+
+
+############################################
+#  ALTERNATIVE ROUTING TABLE DEFINITIONS   #
+############################################
+
+############################################
+#	*** OpenVPN ***
+#
+# route outgoing openvpn traffic trough
+# alternative default gateway
+#
+# $ip route add default via $ADDR_GW_EXTFIRE dev $DEV_EXTFIRE table openvpn.out
+############################################
+
+# EOF

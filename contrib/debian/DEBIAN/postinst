@@ -1,0 +1,74 @@
+#!/bin/sh
+
+# $Id: postinst 2414 2011-03-30 16:22:14Z bfg $
+# $Date: 2011-03-30 18:22:14 +0200 (Wed, 30 Mar 2011) $
+# $Author: bfg $
+# $Revision: 2414 $
+# $LastChangedRevision: 2414 $
+# $LastChangedBy: bfg $
+# $LastChangedDate: 2011-03-30 18:22:14 +0200 (Wed, 30 Mar 2011) $
+# $URL: https://svn.interseek.com/repositories/admin/firewall/trunk/contrib/debian/DEBIAN/postinst $
+
+
+# service coolsvc should start at system startup...
+# update-rc.d -f coolsvc defaults >/dev/null 2>&1
+
+case $1 in
+	# Configure this package.  If the package must prompt the user for
+	# information, do it here.
+	configure)
+
+		# Make our version of a program available
+		#: update-alternatives \
+		#:       --install /usr/bin/program program /usr/bin/alternative 50 \
+		#:       --slave /usr/share/man/man1/program.1.gz program.1.gz \
+		#:               /usr/share/man/man1/alternative.1.gz
+
+		# install screenrc
+		# ucf /usr/share/base-layout/etc/screenrc /etc/screenrc
+
+		FILES="DEFINES.conf chains/POSTROUTING.chain.nat chains/INPUT.chain chains/PREROUTING.chain.nat chains/FORWARD.chain iproute2/iproute2.stop iproute2/iproute2.start"
+		for file in ${FILES}; do
+			ucf "/usr/share/p9-firewall/etc/firewall/${file}" "/etc/firewall/${file}"
+		done
+
+		;;
+
+	# Back out of an attempt to upgrade this package FROM THIS VERSION
+	# to version $2.  Undo the effects of "prerm upgrade $2".
+	abort-upgrade)
+		;;
+
+	# Back out of an attempt to remove this package, which was due to
+	# a conflict with package $3 (version $4).  Undo the effects of
+	# "prerm remove in-favour $3 $4".
+	abort-remove)
+		;;
+
+
+	# Back out of an attempt to deconfigure this package, which was
+	# due to package $6 (version $7) which we depend on being removed
+	# to make way for package $3 (version $4).  Undo the effects of
+	# "prerm deconfigure in-favour $3 $4 removing $6 $7".
+	abort-deconfigure)
+		;;
+
+	*)
+		echo "$0: didn't understand being called with \`$1'" 1>&2
+		exit 1;
+		;;
+
+esac
+
+# restart coolsvc service...
+# service coolsvc restart
+
+# ulogd should be started at startup...
+update-rc.d ulogd2 defaults >/dev/null 2>&1
+service ulogd2 restart >/dev/null 2>&1
+
+exit 0
+
+########################################################
+
+# EOF

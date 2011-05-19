@@ -1,0 +1,10 @@
+Package: p9-firewall
+Version: ${VERSION_BUILD}
+Section: base
+Priority: optional
+Architecture: all
+Maintainer: root@interseek.com
+Depends: iptables, iproute, ulogd2
+Description: [P9 build] Interseek Firewall abstraction script
+ This package provides user friendly structured abstraction around 
+ iptables(8), ip6tables(8) and ip(8) utilities.

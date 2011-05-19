@@ -1,0 +1,100 @@
+#
+# WHAT: netfilter network address translation ruleset file
+#
+
+#########################################
+#        AVAILABLE FUNCTIONS            #
+#########################################
+#
+#      ***************************
+#      *** IPv4 rule functions ***
+#      ***************************
+#
+# add_rule <rule_description>
+#       :: adds specified rule in current chain context
+#
+# add_rule_full "table" "chain" <rule_descripton>
+#       :: adds specified rule in specified chain
+#
+# add_rule_log <rule_description>
+#       :: add rule to current chain context just
+#          as add_rule(), but adds another -j ULOG
+#          before it. Log rule is prefixed with
+#          <CHAIN_NAME>_<ACTION> string.
+#
+#       EXAMPLE:
+#               add_rule_log -j DROP
+#                       in chain EXAMPLE expands to the following 2 rules:
+#                       add_rule -j ULOG --ulog-prefix=EXAMPLE_DROP
+#                       add_rule -j DROP
+#
+# add_rule_log_prefix "prefix" <rule_description>
+#       :: the same as add_rule_log(), but you can
+#          set your own custom log string prefix.
+#
+#       NOTE: prefix MUST contain only [a-z0-9\-+\._] characters!
+#
+#      ***************************
+#      *** IPv6 rule functions ***
+#      ***************************
+#
+# Functions listed below work just the same as the add_rule* functions,
+# but they use ip6tables(8)
+#
+# add_rule6 <rule_description>
+# add_rule6_full "table" "chain" <rule_description>
+# add_rule6_log <rule_description>
+# add_rule6_log_prefix <rule_description>
+
+#########################################
+#        AVAILABLE VARIABLES            #
+#########################################
+
+# $IPTABLES, $fw :: iptables binary
+# $IP6TABLES, $fw6 :: ip6tables binary
+# $FW_BASEDIR :: Script base directory
+# $FW_CHAINDIR :: Chain directory
+# $CHAIN :: Current chain name
+# $CURRENT_CHAIN :: See $CHAIN
+#
+# and all variables defined in DEFINES.conf
+
+#######################################################
+#                SNAT/MASQUERADING                    #
+#######################################################
+
+#######################################################
+#	REDIRECT: smtp,smtps,imap and imaps,http, https traffic to mailserver's service network
+#   when connecting to real, internet visible ip address
+#
+# DNAT onto same network, see http://netfilter.org/documentation/HOWTO//NAT-HOWTO-10.html
+#
+# add_rule -p tcp -d $SMTP_SERVER_SERVICE -s $NET_SERVICE -m multiport --destination-ports 25,465 -j SNAT --to $ADDR_GW_SERVICE
+# add_rule -p tcp -d $IMAP_SERVER_SERVICE -s $NET_SERVICE -m multiport --destination-ports 143,993 -j SNAT --to $ADDR_GW_SERVICE
+# add_rule -p tcp -d $WEBMAIL_SERVER_SERVICE -s $NET_SERVICE -m multiport --destination-ports 80,443 -j SNAT --to $ADDR_GW_SERVICE
+#
+#######################################################
+
+# ******** NO SNAT/MASQ ******** :: between whole new network (10.x.y.z -> 10.a.b.c) 
+#
+# add_rule -A POSTROUTING -s $NET_WHOLE_PRIVATE -d $NET_WHOLE_PRIVATE -j ACCEPT
+
+# ******** MASQUERADE !!! ALL !!! OTHER TRAFFIC ********
+#
+# NOTE: uncomment this rule if you want to route all
+#       traffic over old routers (zoryaX)
+#
+# add_rule -s $NET_WHOLE_PRIVATE -o $DEV_OUT -j SNAT --to $ADDR_MY_SHARED_LEG_DEVELOPMENT
+#
+# NOTE: uncomment this rule if you want to route all
+#       traffic over new routers (RADWARE lpX)
+#
+# add_rule -s $NET_WHOLE_PRIVATE -o $DEV_EXTFIRE -j SNAT --to $ADDR_MY_SHARED_EXTFIRE
+#
+# or (simple but not as flexible)
+#
+# add_rule -s $NET_WHOLE_PRIVATE -o $DEV_EXTFIRE -j MASQUERADE
+#
+########################################################
+
+# EOF

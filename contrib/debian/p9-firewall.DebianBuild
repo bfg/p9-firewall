@@ -1,0 +1,80 @@
+#!/bin/bash
+
+# $Id: p9-firewall.DebianBuild 1887 2010-05-13 18:07:02Z bfg $
+# $Date: 2010-05-13 20:07:02 +0200 (Thu, 13 May 2010) $
+# $Author: bfg $
+# $Revision: 1887 $
+# $LastChangedRevision: 1887 $
+# $LastChangedBy: bfg $
+# $LastChangedDate: 2010-05-13 20:07:02 +0200 (Thu, 13 May 2010) $
+# $URL: https://svn.interseek.com/repositories/admin/firewall/trunk/contrib/debian/p9-firewall.DebianBuild $
+
+PACKAGE_NAME="p9-firewall"
+PACKAGE_VERSION=""
+BUILD_NO="1"
+
+function die () {
+	echo -e "FATAL: $@"
+	exit 1
+}
+
+# check if we're running on debian-like distro
+DISTRO_ID=`lsb_release -i | awk '{print $3}'`
+case ${DISTRO_ID} in
+	Debian|Ubuntu)
+		true
+		;;
+	*)
+		die "This package must be created on  debian-like linux distribution."
+		;;
+esac
+
+# create temporary directory
+PKG=`mktemp -d`
+test -z "${PKG}" && die "Unable to create temporary install directory."
+chmod 755 "${PKG}" || die "Unable to change permissions on temporary install directory."
+
+PKG_BASEDIR="`pwd`"
+BASEDIR="${PKG_BASEDIR}/../../"
+
+# get version
+PACKAGE_VERSION=`${BASEDIR}/bin/p9-firewall -V | awk '{print $2}'`
+test -z "${PACKAGE_VERSION}" && die "Unable to determine package version."
+
+# create skeleton
+mkdir -p "${PKG}/usr/sbin" "${PKG}/usr/share/p9-firewall" "${PKG}/etc/firewall" || die "Unable to create skeleton directories..."
+mkdir -p "${PKG}/usr/share/p9-firewall/etc/firewall" || die "Unable to create share directory."
+mkdir -p "${PKG}/etc/init.d" || die "Unable to create init.d directory."
+mkdir -p "${PKG}/etc/firewall/chains" || die "Unable to create chains directory."
+mkdir -p "${PKG}/etc/firewall/iproute2" || die "Unable to create iproute2 directory."
+
+# copy firewall script itself.
+cp "${BASEDIR}/bin/rc.firewall" "${PKG}/usr/sbin/p9-firewall" || die "Unable to install firewall script."
+cp -ra ${BASEDIR}/conf/* "${PKG}/usr/share/p9-firewall/etc/firewall"
+cp ${BASEDIR}/conf/chains/*.sample "${PKG}/etc/firewall/chains"
+cp -ra "${PKG_BASEDIR}/DEBIAN" "${PKG}" || die "Unable to install debian metadata."
+
+# create symlinks...
+( cd "${PKG}/etc/init.d"; ln -s ../../usr/sbin/p9-firewall )
+( cd "${PKG}/usr/sbin"; ln -s p9-firewall rc.firewall )
+( cd "${PKG}/usr/sbin"; ln -s p9-firewall interseek-firewall )
+
+# create state directory
+mkdir -p "${PKG}/var/lib/p9-firewall" || die "Unable to create cache directory."
+
+# remove svn shit
+find "${PKG}" -type d -name .svn | xargs rm -rf
+chown -R root:root "${PKG}"
+
+# fix debian control file
+VERSION_BUILD="${PACKAGE_VERSION}-${BUILD_NO}"
+echo "version: $VERSION_BUILD"
+perl -pi -e "s/\\\${VERSION_BUILD}/${VERSION_BUILD}/g" "${PKG}/DEBIAN/control" || die "Unable to set DEBIAN/control package name."
+
+# create debian package
+echo "Creating DEBIAN package."
+dpkg --build "${PKG}" /tmp
+
+echo "Package dropped in /tmp"
+
+# EOF

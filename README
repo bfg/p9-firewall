@@ -1,0 +1,12 @@
+USAGE:
+
+1. Identify what you want to do
+
+2. Setup variables in conf/DEFINES.conf
+
+3. Create chain files in conf/chains. Use EXAMPLE.chain.sample as template chain.
+
+4. (advanced, optional step) Define additional routing tables in /etc/iproute2/rt_tables
+and assign ip route rules in iproute2/iproute2.(start|stop)
+
+5. Restart firewall using p9-firewall restart command ran inside screen(1).

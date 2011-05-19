@@ -1,0 +1,82 @@
+#!/bin/sh
+
+# $Id: interseek-firewall.SlackBuild 891 2008-09-19 11:01:48Z bfg $
+# $URL: https://svn.interseek.com/repositories/admin/firewall/trunk/contrib/slackware/interseek-firewall.SlackBuild $
+# $Date: 2008-09-19 13:01:48 +0200 (Fri, 19 Sep 2008) $
+# $Author: bfg $
+# $Revision: 891 $
+# $LastChangedRevision: 891 $
+# $LastChangedBy: bfg $
+# $LastChangedDate: 2008-09-19 13:01:48 +0200 (Fri, 19 Sep 2008) $
+
+########################################################
+
+SCRIPT="../../bin/p9-firewall"
+CONF="../../conf"
+VERSION=`${SCRIPT} version | awk '{print $2}'`
+BUILD="1"
+ARCH="noarch"
+NAME="p9-firewall"
+
+########################################################
+
+die() {
+	echo "FATAL: $@"
+	exit 1
+}
+
+DEST=`mktemp -d`
+test ! -z "${DEST}" -a -d "${DEST}" -a -w "${DEST}" || die "Unable to create temporary directory..."
+
+# create directories...
+mkdir -p "${DEST}/etc/rc.d/init.d" "${DEST}/usr/sbin" "${DEST}/etc/firewall" "${DEST}/install" || die "Unable to create directories."
+
+# copy script...
+cp "${SCRIPT}" "${DEST}/usr/sbin/p9-firewall"
+
+# create symlinks...
+( cd "${DEST}/etc/rc.d/init.d"; ln -s ../../../usr/sbin/p9-firewall )
+( cd "${DEST}/usr/sbin"; ln -s p9-firewall rc.firewall )
+( cd "${DEST}/usr/sbin"; ln -s p9-firewall interseek-firewall )
+
+# copy default configuration...
+cp -ra ${CONF}/* "${DEST}/etc/firewall"
+
+# rename basic stuff to *.new
+(
+	cd "${DEST}/etc/firewall"
+	mv "DEFINES.conf" "DEFINES.conf.new"
+
+	# chains/ directory
+	cd "chains"
+	mv INPUT.chain INPUT.chain.new
+	mv OUTPUT.chain OUTPUT.chain.new
+	mv FORWARD.chain FORWARD.chain.new
+	mv POSTROUTING.chain.nat POSTROUTING.chain.nat.new
+	mv PREROUTING.chain.nat PREROUTING.chain.nat.new
+
+	# iproute2/ directory
+	cd ..
+	cd iproute2
+	mv iproute2.start iproute2.start.new
+	mv iproute2.stop iproute2.stop.new
+)
+
+# create cache directory
+mkdir -p "${DEST}/var/lib/p9-firewall" || die "Unable to create cache directory."
+
+# copy slackware specific stuff...
+cp -ra slack-* doinst.sh "${DEST}/install" || die "Unable to copy slackware package metadata."
+
+# remove svn stuff
+find "${DEST}" -type d -name '.svn' | xargs rm -rf
+
+# create a package...
+PKGNAME="/tmp/${NAME}-${VERSION}-${ARCH}-${BUILD}.tgz"
+cd "${DEST}"
+makepkg -l y -c n "$PKGNAME" || die "Unable to create slackware package."
+
+# remove tmpdir
+rm -rf "${DEST}"
+
+# EOF

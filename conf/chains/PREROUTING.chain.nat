@@ -1,0 +1,89 @@
+#
+# WHAT: netfilter network address translation ruleset file
+#
+
+#########################################
+#        AVAILABLE FUNCTIONS            #
+#########################################
+#
+#      ***************************
+#      *** IPv4 rule functions ***
+#      ***************************
+#
+# add_rule <rule_description>
+#       :: adds specified rule in current chain context
+#
+# add_rule_full "table" "chain" <rule_descripton>
+#       :: adds specified rule in specified chain
+#
+# add_rule_log <rule_description>
+#       :: add rule to current chain context just
+#          as add_rule(), but adds another -j ULOG
+#          before it. Log rule is prefixed with
+#          <CHAIN_NAME>_<ACTION> string.
+#
+#       EXAMPLE:
+#               add_rule_log -j DROP
+#                       in chain EXAMPLE expands to the following 2 rules:
+#                       add_rule -j ULOG --ulog-prefix=EXAMPLE_DROP
+#                       add_rule -j DROP
+#
+# add_rule_log_prefix "prefix" <rule_description>
+#       :: the same as add_rule_log(), but you can
+#          set your own custom log string prefix.
+#
+#       NOTE: prefix MUST contain only [a-z0-9\-+\._] characters!
+#
+#      ***************************
+#      *** IPv6 rule functions ***
+#      ***************************
+#
+# Functions listed below work just the same as the add_rule* functions,
+# but they use ip6tables(8)
+#
+# add_rule6 <rule_description>
+# add_rule6_full "table" "chain" <rule_description>
+# add_rule6_log <rule_description>
+# add_rule6_log_prefix <rule_description>
+
+#########################################
+#        AVAILABLE VARIABLES            #
+#########################################
+
+# $IPTABLES, $fw :: iptables binary
+# $IP6TABLES, $fw6 :: ip6tables binary
+# $FW_BASEDIR :: Script base directory
+# $FW_CHAINDIR :: Chain directory
+# $CHAIN :: Current chain name
+# $CURRENT_CHAIN :: See $CHAIN
+#
+# and all variables defined in DEFINES.conf
+
+
+#######################################################
+#                         DNAT                        #
+#######################################################
+#
+# Access to spica server should never go trough http proxy
+#
+# add_rule -p tcp -d $SPICA_SERVER --dport 80 -j ACCEPT
+#
+# some corporate departments MUST USE transparent http proxy
+# Redirect WWW to http proxy from sales network (transparent proxy)
+#
+#
+# add_rule -p tcp -i $DEV_REGISTRI -m iprange --src-range $IPRANGE_FORCE_HTTP_PROXY_NET_REGISTRI --dport 80 -j DNAT --to $HTTP_PROXY_SERVER:$HTTP_PROXY_SERVER_PORT
+#
+#######################################################
+
+#######################################################
+#                PORT REDIRECTION                     #
+#######################################################
+#
+# add_rule -p tcp -s $NET_WHOLE_PRIVATE -d $SMTP_SERVER -m multiport --destination-ports 25,465 -j DNAT --to $SMTP_SERVER_SERVICE
+# add_rule -p tcp -s $NET_WHOLE_PRIVATE -d $IMAP_SERVER -m multiport --destination-ports 143,993 -j DNAT --to $IMAP_SERVER_SERVICE
+# add_rule -p tcp -s $NET_WHOLE_PRIVATE -d $WEBMAIL_SERVER -m multiport --destination-ports 80,443 -j DNAT --to $WEBMAIL_SERVER_SERVICE
+#
+#######################################################
+
+# EOF
