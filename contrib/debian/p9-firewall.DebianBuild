@@ -49,7 +49,7 @@ mkdir -p "${PKG}/etc/firewall/chains" || die "Unable to create chains directory.
 mkdir -p "${PKG}/etc/firewall/iproute2" || die "Unable to create iproute2 directory."
 
 # copy firewall script itself.
-cp "${BASEDIR}/bin/rc.firewall" "${PKG}/usr/sbin/p9-firewall" || die "Unable to install firewall script."
+cp "${BASEDIR}/bin/p9-firewall" "${PKG}/usr/sbin" || die "Unable to install firewall script."
 cp -ra ${BASEDIR}/conf/* "${PKG}/usr/share/p9-firewall/etc/firewall"
 cp ${BASEDIR}/conf/chains/*.sample "${PKG}/etc/firewall/chains"
 cp -ra "${PKG_BASEDIR}/DEBIAN" "${PKG}" || die "Unable to install debian metadata."
