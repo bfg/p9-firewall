@@ -4,7 +4,7 @@ Section: base
 Priority: optional
 Architecture: all
 Maintainer: root@example.com
-Depends: iptables, iproute, ulogd2
+Depends: iptables, iproute | iproute2, ulogd2
 Description: [P9 build] Interseek Firewall abstraction script
  This package provides user friendly structured abstraction around 
  iptables(8), ip6tables(8) and ip(8) utilities.
